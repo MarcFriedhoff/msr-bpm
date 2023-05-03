@@ -1,0 +1,9 @@
+msr/msr-*
+**/installer.bin
+licenses/*
+!licenses/.gitkeep
+msr-solution/config
+mws/mws-*
+run/um/data/**
+.env
+um/licence/*

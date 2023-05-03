@@ -1,0 +1,79 @@
+# Use root/example as user/password credentials
+version: '3.1'
+
+services:
+
+  init-db:
+    image: dcc:latest
+    command: -a create -d pgsql -l jdbc:wm:postgresql://db:5432;databaseName=postgres -c all -u postgres -p manage # -n WM_PGDB_schema
+    networks:
+      - bpm
+    depends_on: 
+      - db
+    build:
+      context: ../dcc
+            
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: manage      
+      PGDATA: /var/lib/postgresql/data/pgdata
+    networks:
+      - bpm
+    volumes:
+      - ${PWD}/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+      - ${PWD}/db:/var/lib/postgresql/data/pgdata
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - bpm
+
+  mws:
+    image: mws-image:latest
+    environment: 
+      DB_URL: jdbc:wm:postgresql://db:5432;databaseName=postgres
+      DB_TYPE: postgresql
+      DB_USERNAME: postgres
+      DB_PASSWORD: manage
+    ports:
+      - 9585:8585
+    networks:
+      - bpm
+    depends_on:
+      - init-db
+  
+  bpm:    
+    image: msr-solution:latest
+    environment:
+      SAG_IS_LICENSE_FILE: /license/licenseKey.xml
+      SAG_IS_CONFIG_PROPERTIES: /config/msr-solution-variables.properties
+    ports:
+      - 5555:5555
+    depends_on:
+      - init-db
+    networks:
+      - bpm
+    volumes:
+      - ${PWD}/licenses/is-license.xml:/license/licenseKey.xml:rw
+      - ${PWD}/config:/config
+
+  um: 
+    image: sagcr.azurecr.io/universalmessaging-server:10.15
+    ports:
+      - 9000:9000
+    networks:
+      - bpm
+    volumes:
+      - ${PWD}/licenses/um-license.xml:/opt/softwareag/UniversalMessaging/server/umserver/licence/licence.xml
+      - ${PWD}/um/data:/opt/softwareag/UniversalMessaging/server/umserver/data
+      
+networks:
+  bpm:
+
+
