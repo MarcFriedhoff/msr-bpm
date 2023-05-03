@@ -7,3 +7,4 @@ mws/mws-*
 run/um/data/**
 .env
 um/licence/*
+dcc/dcc_script
