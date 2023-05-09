@@ -113,4 +113,4 @@ To start the entire environment simply execute docker compose:
 
 Make sure that you have logged into the SoftwareAG Repository by executing:
 
-. .env && docker login sag.azurecr.io --username=$SAG_CR_USER --password=$SAG_CR_PASSWORD
+. .env && docker login sagcr.azurecr.io --username=$SAG_CR_USER --password=$SAG_CR_PASSWORD
